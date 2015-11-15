@@ -1,11 +1,12 @@
 module Main where
 
 import Data.StateVar
-import Graphics.GL.Core32
 import Graphics.UI.GLUT.Begin
 import Graphics.UI.GLUT.Callbacks
 import Graphics.UI.GLUT.Initialization
 import Graphics.UI.GLUT.Window
+import Programs.Simple as Simple
+import Programs.GLRect as GLRect
 import System.Environment
 
 main :: IO ()
@@ -18,15 +19,18 @@ main = do
       initialDisplayMode $= [SingleBuffered, RGBAMode]
       window <- createWindow "GL Practice in Haskell"
       displayCallback $= displayFunction'
+      reshapeCallback $= reshapeFunction otherArgs
       mainLoop
     Nothing -> putStrLn "Please provide function."
 
-displayFunction :: [String] -> Maybe (IO ())
-displayFunction ("simple":xs) = Just displaySimple
+displayFunction :: [String] -> Maybe (DisplayCallback)
+displayFunction ("simple":xs) = Just Simple.display
+displayFunction ("glrect":xs) = Just GLRect.display
 displayFunction (_:xs) = displayFunction xs
 displayFunction [] = Nothing
 
-displaySimple :: IO ()
-displaySimple = do
-  glClear GL_COLOR_BUFFER_BIT
-  glFlush
+reshapeFunction :: [String] -> Maybe (ReshapeCallback)
+reshapeFunction ("simple":xs) = Nothing
+reshapeFunction ("glrect":xs) = Just GLRect.reshape
+reshapeFunction (_:xs) = reshapeFunction xs
+reshapeFunction [] = Nothing
