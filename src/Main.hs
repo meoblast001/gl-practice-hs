@@ -1,5 +1,6 @@
 module Main where
 
+import Data.IORef
 import Data.StateVar
 import Graphics.UI.GLUT.Begin
 import Graphics.UI.GLUT.Callbacks
@@ -7,30 +8,39 @@ import Graphics.UI.GLUT.Initialization
 import Graphics.UI.GLUT.Window
 import Programs.Simple as Simple
 import Programs.GLRect as GLRect
+import Programs.GLRectAnimated as GLRectAnimated
 import System.Environment
 
 main :: IO ()
 main = do
   progName <- getProgName
   allArgs <- getArgs
-  otherArgs <- initialize progName allArgs
-  case displayFunction otherArgs of
-    Just displayFunction' -> do
-      initialDisplayMode $= [SingleBuffered, RGBAMode]
+  callbacks <- initialize progName allArgs >>= callbackFunctions
+  case callbacks of
+    (Just displayCallback', reshapeCallback', timerData) -> do
+      initialDisplayMode $= [DoubleBuffered, RGBAMode]
       window <- createWindow "GL Practice in Haskell"
-      displayCallback $= displayFunction'
-      reshapeCallback $= reshapeFunction otherArgs
+      displayCallback $= displayCallback'
+      reshapeCallback $= reshapeCallback'
+      case timerData of
+        Just (timeout, timerCallback) -> addRepeatingTimer timeout timerCallback
+        Nothing -> return ()
       mainLoop
-    Nothing -> putStrLn "Please provide function."
+    _ -> putStrLn "Please provide function."
 
-displayFunction :: [String] -> Maybe (DisplayCallback)
-displayFunction ("simple":xs) = Just Simple.display
-displayFunction ("glrect":xs) = Just GLRect.display
-displayFunction (_:xs) = displayFunction xs
-displayFunction [] = Nothing
+callbackFunctions :: [String] ->
+                     IO (Maybe DisplayCallback, Maybe ReshapeCallback,
+                         Maybe (Timeout, TimerCallback))
+callbackFunctions ("simple":xs) = return (Just Simple.display, Nothing, Nothing)
+callbackFunctions ("glrect":xs) =
+  return (Just GLRect.display, Just GLRect.reshape, Nothing)
+callbackFunctions ("glrectanimated":xs) = do
+  ref <- newIORef (0.0, 0.0, True, True)
+  return (Just (GLRectAnimated.display ref), Just GLRectAnimated.reshape,
+          Just (33, GLRectAnimated.timer ref))
+callbackFunctions (_:xs) = callbackFunctions xs
+callbackFunctions [] = return (Nothing, Nothing, Nothing)
 
-reshapeFunction :: [String] -> Maybe (ReshapeCallback)
-reshapeFunction ("simple":xs) = Nothing
-reshapeFunction ("glrect":xs) = Just GLRect.reshape
-reshapeFunction (_:xs) = reshapeFunction xs
-reshapeFunction [] = Nothing
+addRepeatingTimer :: Timeout -> TimerCallback -> IO ()
+addRepeatingTimer timeout callback =
+  callback >> addTimerCallback timeout (addRepeatingTimer timeout callback)
