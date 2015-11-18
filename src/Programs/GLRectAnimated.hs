@@ -42,7 +42,7 @@ reshape (Size width height) = do
   glViewport 0 0 (fromIntegral width) (fromIntegral height)
   glMatrixMode GL_PROJECTION
   glLoadIdentity
-  let aspectRatio = (fromIntegral width) / (fromIntegral height)
+  let aspectRatio = fromIntegral width / fromIntegral height
   if width <= height
     then glOrtho (-100) 100 ((-100) / aspectRatio) (100 / aspectRatio)
                  1.0 (-1.0)
