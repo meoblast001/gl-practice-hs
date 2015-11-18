@@ -3,12 +3,15 @@ module Programs.GLRectAnimated (display, reshape, timer) where
 import Data.IORef
 import Data.StateVar
 import Graphics.GL.Standard21
+import Graphics.GL.Types
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.UI.GLUT.Callbacks.Global
 import Graphics.UI.GLUT.Callbacks.Window
 import Graphics.UI.GLUT.Window
 
-display :: IORef (Float, Float, Bool, Bool) -> DisplayCallback
+type PositionInfo = (Float, Float, Bool, Bool)
+
+display :: IORef PositionInfo -> DisplayCallback
 display ioref = do
   (x, y, xstep, ystep) <- readIORef ioref
   glClear GL_COLOR_BUFFER_BIT
@@ -23,31 +26,45 @@ reshape (Size width height) = do
   glMatrixMode GL_PROJECTION
   glLoadIdentity
   let aspectRatio = (fromIntegral width) / (fromIntegral height)
+      (Size glWidth glHeight) = fixedGlSize
+      glWidth' = fromIntegral glWidth
+      glHeight' = fromIntegral glHeight
   if width <= height
-    then glOrtho (-100.0) 100.0 ((-100.0) / aspectRatio) (100.00 / aspectRatio)
-                 1.0 (-1.0)
-    else glOrtho ((-100.0) * aspectRatio) (100.0 * aspectRatio) (-100.0) 100.0
-                 1.0 (-1.0)
+    then glOrtho (-glWidth') glWidth' ((-glHeight') / aspectRatio)
+                 (glHeight' / aspectRatio) 1.0 (-1.0)
+    else glOrtho ((-glWidth') * aspectRatio) (glWidth' * aspectRatio)
+                 (-glHeight') glHeight' 1.0 (-1.0)
   glMatrixMode GL_MODELVIEW
   glLoadIdentity
 
-timer :: IORef (Float, Float, Bool, Bool) -> TimerCallback
+timer :: IORef PositionInfo -> TimerCallback
 timer ioref = do
-  (x, y, xstep, ystep) <- readIORef ioref
-  (Size width height) <- get windowSize
-  let width' = fromIntegral width / 2.0
-      height' = fromIntegral height / 2.0
+  positionInfo <- readIORef ioref
+  size <- get windowSize
+  writeIORef ioref (checkChangeDirection positionInfo)
+  postRedisplay Nothing
+
+checkChangeDirection :: PositionInfo -> PositionInfo
+checkChangeDirection (x, y, xstep, ystep) =
+  let (Size width height) = fixedGlSize
+      width' = fromIntegral width
+      height' = fromIntegral height
       xstepNew = if x > width' - rSize || x < (-width') then not xstep
                                                         else xstep
       ystepNew = if y > height' || y < (-height') + rSize then not ystep
                                                           else ystep
-      xNew = x + (if xstepNew then stepSize else (-stepSize))
-      yNew = y + (if ystepNew then stepSize else (-stepSize))
-  writeIORef ioref (xNew, yNew, xstepNew, ystepNew)
-  postRedisplay Nothing
+      xNew = x + stepOffset xstepNew
+      yNew = y + stepOffset ystepNew
+  in (xNew, yNew, xstepNew, ystepNew)
 
-rSize :: Num a => a
+fixedGlSize :: Size
+fixedGlSize = Size 100 100
+
+rSize :: GLfloat
 rSize = 50
 
-stepSize :: Num a => a
+stepSize :: GLfloat
 stepSize = 1
+
+stepOffset :: Bool -> GLfloat
+stepOffset step = if step then stepSize else (-stepSize)
