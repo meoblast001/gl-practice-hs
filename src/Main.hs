@@ -1,3 +1,10 @@
+-- |
+-- Module: Main
+-- Copyright: (C) 2015 Braden Walters
+-- Maintainer: Braden Walters <vc@braden-walters.info>
+-- Stability: experimental
+-- Portability: ghc
+
 module Main where
 
 import Data.IORef
@@ -15,6 +22,8 @@ main :: IO ()
 main = do
   progName <- getProgName
   allArgs <- getArgs
+  -- Intialise the GLUT program and get the callback functions for the current
+  -- mode.
   callbacks <- initialize progName allArgs >>= callbackFunctions
   case callbacks of
     (Just displayCallback', reshapeCallback', timerData) -> do
@@ -26,8 +35,12 @@ main = do
         Just (timeout, timerCallback) -> addRepeatingTimer timeout timerCallback
         Nothing -> return ()
       mainLoop
-    _ -> putStrLn "Please provide function."
+    -- If no display callback, end the program.
+    _ -> error "Please provide function."
 
+-- |Given a list of program arguments, find the name of the program to be run,
+-- and return its display, reshape, and timer callbacks, if they exist. If the
+-- display callback is Nothing, then a program was not found.
 callbackFunctions :: [String] ->
                      IO (Maybe DisplayCallback, Maybe ReshapeCallback,
                          Maybe (Timeout, TimerCallback))
@@ -41,6 +54,7 @@ callbackFunctions ("glrectanimated":xs) = do
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing)
 
+-- |Add a GLUT timer which will set itself again after it is triggered.
 addRepeatingTimer :: Timeout -> TimerCallback -> IO ()
 addRepeatingTimer timeout callback =
   callback >> addTimerCallback timeout (addRepeatingTimer timeout callback)
