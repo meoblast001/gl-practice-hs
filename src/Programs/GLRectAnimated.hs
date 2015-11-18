@@ -1,5 +1,6 @@
 module Programs.GLRectAnimated (display, reshape, timer) where
 
+import Data.Functor
 import Data.IORef
 import Data.StateVar
 import Graphics.GL.Standard21
@@ -10,6 +11,8 @@ import Graphics.UI.GLUT.Callbacks.Window
 import Graphics.UI.GLUT.Window
 
 type PositionInfo = (Float, Float, Bool, Bool)
+
+data SizeF = SizeF Float Float
 
 display :: IORef PositionInfo -> DisplayCallback
 display ioref = do
@@ -26,39 +29,37 @@ reshape (Size width height) = do
   glMatrixMode GL_PROJECTION
   glLoadIdentity
   let aspectRatio = (fromIntegral width) / (fromIntegral height)
-      (Size glWidth glHeight) = fixedGlSize
-      glWidth' = fromIntegral glWidth
-      glHeight' = fromIntegral glHeight
   if width <= height
-    then glOrtho (-glWidth') glWidth' ((-glHeight') / aspectRatio)
-                 (glHeight' / aspectRatio) 1.0 (-1.0)
-    else glOrtho ((-glWidth') * aspectRatio) (glWidth' * aspectRatio)
-                 (-glHeight') glHeight' 1.0 (-1.0)
+    then glOrtho (-100) 100 ((-100) / aspectRatio) (100 / aspectRatio)
+                 1.0 (-1.0)
+    else glOrtho ((-100) * aspectRatio) (100 * aspectRatio) (-100) 100
+                 1.0 (-1.0)
   glMatrixMode GL_MODELVIEW
   glLoadIdentity
 
 timer :: IORef PositionInfo -> TimerCallback
 timer ioref = do
-  positionInfo <- readIORef ioref
-  size <- get windowSize
-  writeIORef ioref (checkChangeDirection positionInfo)
+  newPositionInfo <- readIORef ioref >>= checkChangeDirection
+  writeIORef ioref newPositionInfo
   postRedisplay Nothing
 
-checkChangeDirection :: PositionInfo -> PositionInfo
-checkChangeDirection (x, y, xstep, ystep) =
-  let (Size width height) = fixedGlSize
-      width' = fromIntegral width
-      height' = fromIntegral height
-      xstepNew = if x > width' - rSize || x < (-width') then not xstep
-                                                        else xstep
-      ystepNew = if y > height' || y < (-height') + rSize then not ystep
-                                                          else ystep
+checkChangeDirection :: PositionInfo -> IO PositionInfo
+checkChangeDirection (x, y, xstep, ystep) = do
+  (SizeF width height) <- glSize
+  let xstepNew = if x > width - rSize || x < (-width) then not xstep
+                                                      else xstep
+      ystepNew = if y > height || y < (-height) + rSize then not ystep
+                                                        else ystep
       xNew = x + stepOffset xstepNew
       yNew = y + stepOffset ystepNew
-  in (xNew, yNew, xstepNew, ystepNew)
+  return (xNew, yNew, xstepNew, ystepNew)
 
-fixedGlSize :: Size
-fixedGlSize = Size 100 100
+glSize :: IO SizeF
+glSize = do
+  (SizeF width height) <- sizeToFloat <$> get windowSize
+  let aspectRatio = width / height
+  if width <= height then return $ SizeF 100 (100 / aspectRatio)
+                     else return $ SizeF (100 * aspectRatio) 100
 
 rSize :: GLfloat
 rSize = 50
@@ -68,3 +69,7 @@ stepSize = 1
 
 stepOffset :: Bool -> GLfloat
 stepOffset step = if step then stepSize else (-stepSize)
+
+sizeToFloat :: Size -> SizeF
+sizeToFloat (Size width height) =
+  SizeF (fromIntegral width) (fromIntegral height)
