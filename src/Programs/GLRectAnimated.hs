@@ -39,7 +39,7 @@ reshape (Size width height) = do
 
 timer :: IORef PositionInfo -> TimerCallback
 timer ioref = do
-  newPositionInfo <- readIORef ioref >>= checkChangeDirection
+  newPositionInfo <- readIORef ioref >>= checkChangeDirection >>= checkBounds
   writeIORef ioref newPositionInfo
   postRedisplay Nothing
 
@@ -53,6 +53,19 @@ checkChangeDirection (x, y, xstep, ystep) = do
       xNew = x + stepOffset xstepNew
       yNew = y + stepOffset ystepNew
   return (xNew, yNew, xstepNew, ystepNew)
+
+checkBounds :: PositionInfo -> IO PositionInfo
+checkBounds (x, y, xstep, ystep) = do
+  (SizeF width height) <- glSize
+  let xNew
+        | x > width - rSize + stepOffset xstep = width - rSize - 1
+        | x < -(width + stepOffset xstep) = (-width) - 1
+        | otherwise = x
+      yNew
+        | y > height + stepOffset ystep = height - 1
+        | y < -(height - rSize + stepOffset ystep) = (-height) + rSize - 1
+        | otherwise = y
+  return (xNew, yNew, xstep, ystep)
 
 glSize :: IO SizeF
 glSize = do
