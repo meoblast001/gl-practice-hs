@@ -16,6 +16,7 @@ import Graphics.UI.GLUT.Window
 import Programs.Simple as Simple
 import Programs.GLRect as GLRect
 import Programs.GLRectAnimated as GLRectAnimated
+import Programs.Points as Points
 import System.Environment
 
 main :: IO ()
@@ -51,6 +52,8 @@ callbackFunctions ("glrectanimated":xs) = do
   ref <- newIORef (0.0, 0.0, True, True)
   return (Just (GLRectAnimated.display ref), Just GLRectAnimated.reshape,
           Just (33, GLRectAnimated.timer ref))
+callbackFunctions ("points":xs) =
+  return (Just Points.display, Just Points.reshape, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing)
 
