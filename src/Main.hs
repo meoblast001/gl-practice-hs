@@ -17,6 +17,7 @@ import Programs.Simple as Simple
 import Programs.GLRect as GLRect
 import Programs.GLRectAnimated as GLRectAnimated
 import Programs.Points as Points
+import Programs.Pointsz as Pointsz
 import System.Environment
 
 main :: IO ()
@@ -54,6 +55,8 @@ callbackFunctions ("glrectanimated":xs) = do
           Just (33, GLRectAnimated.timer ref))
 callbackFunctions ("points":xs) =
   return (Just Points.display, Just Points.reshape, Nothing)
+callbackFunctions ("pointsz":xs) =
+  return (Just Pointsz.display, Just Pointsz.reshape, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing)
 
