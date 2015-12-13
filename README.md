@@ -11,3 +11,5 @@ Programs include:
  * glrect
  * glrectanimated
  * points
+ * pointsz
+ * lines
