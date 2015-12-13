@@ -52,6 +52,7 @@ display = do
         glEnd
         let nextPointSize = if pointSize + granularity > maxPointSize
                             then pointSize else pointSize + granularity
+        -- Recurse.
         drawPoints (angle - 0.1) (z + 0.5) nextPointSize maxPointSize
                    granularity
 
