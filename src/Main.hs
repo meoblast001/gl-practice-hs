@@ -20,6 +20,7 @@ import Programs.Points as Points
 import Programs.Pointsz as Pointsz
 import Programs.Lines as Lines
 import Programs.LStrips as LStrips
+import Programs.LinesW as LinesW
 import System.Environment
 
 main :: IO ()
@@ -63,6 +64,8 @@ callbackFunctions ("lines":xs) =
   return (Just Lines.display, Just Lines.reshape, Nothing)
 callbackFunctions ("lstrips":xs) =
   return (Just LStrips.display, Just LStrips.reshape, Nothing)
+callbackFunctions ("linesw":xs) =
+  return (Just LinesW.display, Just LinesW.reshape, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing)
 
