@@ -13,3 +13,4 @@ Programs include:
  * points
  * pointsz
  * lines
+ * lstrips

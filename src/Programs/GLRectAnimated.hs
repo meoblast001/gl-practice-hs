@@ -5,7 +5,7 @@
 -- Stability: experimental
 -- Portability: ghc
 
-module Programs.GLRectAnimated (display, reshape, timer) where
+module Programs.GLRectAnimated (display, GLRect.reshape, timer) where
 
 import Data.Functor
 import Data.IORef
@@ -16,6 +16,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.UI.GLUT.Callbacks.Global
 import Graphics.UI.GLUT.Callbacks.Window
 import Graphics.UI.GLUT.Window
+import qualified Programs.GLRect as GLRect
 
 -- |Info about position of the rectangle. First two elements are the X and Y
 -- position of the rectangle respectively. The next two elements are true if the
@@ -33,23 +34,6 @@ display ioref = do
   glColor3f 1.0 0.0 0.0
   glRectf x y (x + rSize) (y - rSize)
   swapBuffers
-
--- |Called when the window is reshaped. Adjust the clipping volume to match
--- the aspect ratio so that the scene does not appear skewed.
-reshape :: ReshapeCallback
-reshape (Size width 0) = reshape (Size width 1)
-reshape (Size width height) = do
-  glViewport 0 0 (fromIntegral width) (fromIntegral height)
-  glMatrixMode GL_PROJECTION
-  glLoadIdentity
-  let aspectRatio = fromIntegral width / fromIntegral height
-  if width <= height
-    then glOrtho (-100) 100 ((-100) / aspectRatio) (100 / aspectRatio)
-                 1.0 (-1.0)
-    else glOrtho ((-100) * aspectRatio) (100 * aspectRatio) (-100) 100
-                 1.0 (-1.0)
-  glMatrixMode GL_MODELVIEW
-  glLoadIdentity
 
 -- |Called when the program's timer times out. Move the animation so that the
 -- position of the rectangle will be different at the next render.
