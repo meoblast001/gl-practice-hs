@@ -19,6 +19,7 @@ import Programs.GLRectAnimated as GLRectAnimated
 import Programs.Points as Points
 import Programs.Pointsz as Pointsz
 import Programs.Lines as Lines
+import Programs.LStrips as LStrips
 import System.Environment
 
 main :: IO ()
@@ -60,6 +61,8 @@ callbackFunctions ("pointsz":xs) =
   return (Just Pointsz.display, Just Pointsz.reshape, Nothing)
 callbackFunctions ("lines":xs) =
   return (Just Lines.display, Just Lines.reshape, Nothing)
+callbackFunctions ("lstrips":xs) =
+  return (Just LStrips.display, Just LStrips.reshape, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing)
 
