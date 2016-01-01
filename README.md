@@ -15,3 +15,4 @@ Programs include:
  * lines
  * lstrips
  * linesw
+ * lstipple
