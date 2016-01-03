@@ -17,6 +17,6 @@ Programs include:
  * linesw
  * lstipple
  * triangles
- ** `--cull` - Cull surfaces.
- ** `--depth` - Enable depth testing.
- ** `--outline` - Only display wireframe of back surfaces.
+   * `--cull` - Cull surfaces.
+   * `--depth` - Enable depth testing.
+   * `--outline` - Only display wireframe of back surfaces.

@@ -84,7 +84,7 @@ setupDisplay = do
   glShadeModel GL_FLAT
   -- The front side of a polygon is the side for which the vertices are
   -- specified in clockwise order.
-  glFrontFace GL_CCW
+  glFrontFace GL_CW
 
 -- |Called when any keyboard or mouse event occurs.
 keymouse :: IORef RotationInfo -> KeyboardMouseCallback
