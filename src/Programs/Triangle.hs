@@ -16,6 +16,7 @@ import Graphics.UI.GLUT.Callbacks.Window
 import Graphics.UI.GLUT.Window
 import qualified Programs.Points as Points
 
+-- |Contains X and Y rotation of the scene.
 type RotationInfo = (Float, Float)
 
 -- |Called when the frame will be rendered.

@@ -27,6 +27,7 @@ import Programs.LStrips as LStrips
 import Programs.LinesW as LinesW
 import Programs.LStipple as LStipple
 import Programs.Triangle as Triangle
+import Programs.PStipple as PStipple
 import System.Environment
 
 main :: IO ()
@@ -83,6 +84,8 @@ callbackFunctions ("triangle":xs) = do
   ref <- newIORef (0.0, 0.0)
   return (Just $ Triangle.display longArgs ref, Just Triangle.reshape, Nothing,
           Just $ Triangle.keymouse ref)
+callbackFunctions ("pstipple":xs) =
+  return (Just PStipple.display, Just PStipple.reshape, Nothing, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 
