@@ -39,7 +39,7 @@ main = do
   case callbacks of
     (Just displayCallback', reshapeCallback', timerData,
      keyboardMouseCallback') -> do
-      initialDisplayMode $= [DoubleBuffered, RGBAMode]
+      initialDisplayMode $= [DoubleBuffered, RGBAMode, WithDepthBuffer]
       window <- createWindow "GL Practice in Haskell"
       displayCallback $= displayCallback'
       reshapeCallback $= reshapeCallback'
