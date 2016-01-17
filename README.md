@@ -20,3 +20,5 @@ Programs include:
    * `--cull` - Cull surfaces.
    * `--depth` - Enable depth testing.
    * `--outline` - Only display wireframe of back surfaces.
+ * star
+   * `--edgeFlag` - Enables the edge flag which shows non-border lines.

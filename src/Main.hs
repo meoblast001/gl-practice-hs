@@ -28,6 +28,7 @@ import Programs.LinesW as LinesW
 import Programs.LStipple as LStipple
 import Programs.Triangle as Triangle
 import Programs.PStipple as PStipple
+import Programs.Star as Star
 import System.Environment
 
 main :: IO ()
@@ -86,6 +87,9 @@ callbackFunctions ("triangle":xs) = do
           Just $ Triangle.keymouse ref)
 callbackFunctions ("pstipple":xs) =
   return (Just PStipple.display, Just PStipple.reshape, Nothing, Nothing)
+callbackFunctions ("star":xs) = do
+  longArgs <- longArgSet
+  return (Just $ Star.display longArgs, Just Star.reshape, Nothing, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 
