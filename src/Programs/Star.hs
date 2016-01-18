@@ -26,7 +26,7 @@ display longArgs = do
   -- Only show edges.
   glPolygonMode GL_FRONT_AND_BACK GL_LINE
   -- Clear colour and depth buffer.
-  glClear (GL_COLOR_BUFFER_BIT .|. GL_DEPTH_BUFFER_BIT)
+  glClear GL_COLOR_BUFFER_BIT
 
   glBegin GL_TRIANGLES
 

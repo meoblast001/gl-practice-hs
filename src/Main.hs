@@ -17,18 +17,19 @@ import Graphics.UI.GLUT.Begin
 import Graphics.UI.GLUT.Callbacks
 import Graphics.UI.GLUT.Initialization
 import Graphics.UI.GLUT.Window
-import Programs.Simple as Simple
-import Programs.GLRect as GLRect
-import Programs.GLRectAnimated as GLRectAnimated
-import Programs.Points as Points
-import Programs.Pointsz as Pointsz
-import Programs.Lines as Lines
-import Programs.LStrips as LStrips
-import Programs.LinesW as LinesW
-import Programs.LStipple as LStipple
-import Programs.Triangle as Triangle
-import Programs.PStipple as PStipple
-import Programs.Star as Star
+import qualified Programs.Simple as Simple
+import qualified Programs.GLRect as GLRect
+import qualified Programs.GLRectAnimated as GLRectAnimated
+import qualified Programs.Points as Points
+import qualified Programs.Pointsz as Pointsz
+import qualified Programs.Lines as Lines
+import qualified Programs.LStrips as LStrips
+import qualified Programs.LinesW as LinesW
+import qualified Programs.LStipple as LStipple
+import qualified Programs.Triangle as Triangle
+import qualified Programs.PStipple as PStipple
+import qualified Programs.Star as Star
+import qualified Programs.Scissor as Scissor
 import System.Environment
 
 main :: IO ()
@@ -90,6 +91,8 @@ callbackFunctions ("pstipple":xs) =
 callbackFunctions ("star":xs) = do
   longArgs <- longArgSet
   return (Just $ Star.display longArgs, Just Star.reshape, Nothing, Nothing)
+callbackFunctions ("scissor":xs) =
+  return (Just Scissor.display, Just Scissor.reshape, Nothing, Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 
