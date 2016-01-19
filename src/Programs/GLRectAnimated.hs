@@ -5,7 +5,12 @@
 -- Stability: experimental
 -- Portability: ghc
 
-module Programs.GLRectAnimated (display, GLRect.reshape, timer) where
+module Programs.GLRectAnimated
+( display
+, GLRect.reshape
+, timer
+, PositionInfo(..)
+) where
 
 import Data.Functor
 import Data.IORef

@@ -30,6 +30,7 @@ import qualified Programs.Triangle as Triangle
 import qualified Programs.PStipple as PStipple
 import qualified Programs.Star as Star
 import qualified Programs.Scissor as Scissor
+import qualified Programs.Stencil as Stencil
 import System.Environment
 
 main :: IO ()
@@ -42,7 +43,8 @@ main = do
   case callbacks of
     (Just displayCallback', reshapeCallback', timerData,
      keyboardMouseCallback') -> do
-      initialDisplayMode $= [DoubleBuffered, RGBAMode, WithDepthBuffer]
+      initialDisplayMode $= [DoubleBuffered, RGBAMode, WithDepthBuffer,
+                             WithStencilBuffer]
       window <- createWindow "GL Practice in Haskell"
       displayCallback $= displayCallback'
       reshapeCallback $= reshapeCallback'
@@ -93,6 +95,10 @@ callbackFunctions ("star":xs) = do
   return (Just $ Star.display longArgs, Just Star.reshape, Nothing, Nothing)
 callbackFunctions ("scissor":xs) =
   return (Just Scissor.display, Just Scissor.reshape, Nothing, Nothing)
+callbackFunctions ("stencil":xs) = do
+  ref <- newIORef (0.0, 0.0, True, True)
+  return (Just (Stencil.display ref), Just Stencil.reshape,
+          Just (33, Stencil.timer ref), Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 

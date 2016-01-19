@@ -22,3 +22,5 @@ Programs include:
    * `--outline` - Only display wireframe of back surfaces.
  * star
    * `--edgeFlag` - Enables the edge flag which shows non-border lines.
+ * scissor
+ * stencil
