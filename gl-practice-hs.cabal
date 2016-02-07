@@ -14,6 +14,7 @@ executable gl-practice-hs
     , gl >= 0.7.7
     , OpenGL >= 2.13
     , GLUT >= 2.7.0
+    , GLURaw >= 2.0
     , StateVar >= 1.1.0
     , unordered-containers >= 0.2.5 && < 0.2.6
   hs-source-dirs: src

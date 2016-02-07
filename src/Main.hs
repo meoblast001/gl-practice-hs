@@ -32,6 +32,7 @@ import qualified Programs.Star as Star
 import qualified Programs.Scissor as Scissor
 import qualified Programs.Stencil as Stencil
 import qualified Programs.Atom as Atom
+import qualified Programs.Perspect as Perspect
 import System.Environment
 
 main :: IO ()
@@ -104,6 +105,10 @@ callbackFunctions ("atom":xs) = do
   ref <- newIORef 0.0
   return (Just $ Atom.display ref, Just Atom.reshape, Just (33, Atom.timer ref),
           Nothing)
+callbackFunctions ("perspect":xs) = do
+  ref <- newIORef (0.0, 0.0)
+  return (Just $ Perspect.display ref, Just Perspect.reshape,
+          Just (33, Perspect.timer ref), Nothing)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 
