@@ -24,3 +24,6 @@ Programs include:
    * `--edgeFlag` - Enables the edge flag which shows non-border lines.
  * scissor
  * stencil
+ * atom
+ * perspect
+ * sphereworld

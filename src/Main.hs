@@ -17,6 +17,7 @@ import Graphics.UI.GLUT.Begin
 import Graphics.UI.GLUT.Callbacks
 import Graphics.UI.GLUT.Initialization
 import Graphics.UI.GLUT.Window
+import Linear.Matrix
 import qualified Programs.Simple as Simple
 import qualified Programs.GLRect as GLRect
 import qualified Programs.GLRectAnimated as GLRectAnimated
@@ -33,6 +34,7 @@ import qualified Programs.Scissor as Scissor
 import qualified Programs.Stencil as Stencil
 import qualified Programs.Atom as Atom
 import qualified Programs.Perspect as Perspect
+import qualified Programs.Sphereworld as Sphereworld
 import System.Environment
 
 main :: IO ()
@@ -109,6 +111,11 @@ callbackFunctions ("perspect":xs) = do
   ref <- newIORef (0.0, 0.0)
   return (Just $ Perspect.display ref, Just Perspect.reshape,
           Just (33, Perspect.timer ref), Nothing)
+callbackFunctions ("sphereworld":xs) = do
+  ref <- newIORef identity
+  positions <- Sphereworld.setup
+  return (Just $ Sphereworld.display ref positions, Just Sphereworld.reshape,
+          Nothing, Just $ Sphereworld.keymouse ref)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 
