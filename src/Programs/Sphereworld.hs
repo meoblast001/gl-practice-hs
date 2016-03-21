@@ -35,14 +35,19 @@ setup = do
   glPolygonMode GL_FRONT_AND_BACK GL_LINE
   -- Randomly generate sphere positions.
   randGenX <- newStdGen
-  let randomX = randomRs (-200, 200) randGenX
+  let randomX = randomRs (-20, 20) randGenX
   randGenY <- newStdGen
-  let randomZ = randomRs (-200, 200) randGenY
+  let randomZ = randomRs (-20, 20) randGenY
   return $ take numSpheres $ zip randomX randomZ
 
 -- |Called when the frame will be rendered.
 display :: IORef (M44 GLfloat) -> [(Float, Float)] -> DisplayCallback
 display ioref spherePos = do
+  -- Background colour somewhat blue.
+  glClearColor 0.0 0.0 0.5 1.0
+  -- Draw everything as wireframe.
+  glPolygonMode GL_FRONT_AND_BACK GL_LINE
+
   glClear (GL_COLOR_BUFFER_BIT .|. GL_DEPTH_BUFFER_BIT)
   glPushMatrix
 
