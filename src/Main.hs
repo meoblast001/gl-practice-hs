@@ -113,9 +113,11 @@ callbackFunctions ("perspect":xs) = do
           Just (33, Perspect.timer ref), Nothing)
 callbackFunctions ("sphereworld":xs) = do
   ref <- newIORef identity
+  yref <- newIORef 0.0
   positions <- Sphereworld.setup
-  return (Just $ Sphereworld.display ref positions, Just Sphereworld.reshape,
-          Nothing, Just $ Sphereworld.keymouse ref)
+  return (Just $ Sphereworld.display ref yref positions,
+          Just Sphereworld.reshape, Just (33, Sphereworld.timer yref),
+          Just $ Sphereworld.keymouse ref)
 callbackFunctions (_:xs) = callbackFunctions xs
 callbackFunctions [] = return (Nothing, Nothing, Nothing, Nothing)
 

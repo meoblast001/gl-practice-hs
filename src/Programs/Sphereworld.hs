@@ -5,7 +5,13 @@
 -- Stability: experimental
 -- Portability: ghc
 
-module Programs.Sphereworld (setup, display, Perspect.reshape, keymouse) where
+module Programs.Sphereworld (
+  setup
+, display
+, Perspect.reshape
+, timer
+, keymouse
+) where
 
 import Data.Bits
 import Data.IORef
@@ -41,8 +47,9 @@ setup = do
   return $ take numSpheres $ zip randomX randomZ
 
 -- |Called when the frame will be rendered.
-display :: IORef (M44 GLfloat) -> [(Float, Float)] -> DisplayCallback
-display ioref spherePos = do
+display :: IORef (M44 GLfloat) -> IORef GLfloat -> [(Float, Float)] ->
+           DisplayCallback
+display transformRef yRef spherePos = do
   -- Background colour somewhat blue.
   glClearColor 0.0 0.0 0.5 1.0
   -- Draw everything as wireframe.
@@ -52,13 +59,29 @@ display ioref spherePos = do
   glPushMatrix
 
   -- Apply the camera transformation.
-  invertedMatrix <- inv44 <$> readIORef ioref
+  invertedMatrix <- inv44 <$> readIORef transformRef
   withM44AsPtr invertedMatrix $ \inversePtr ->
     glLoadMatrixf inversePtr
 
   -- Draw the ground and spheres.
   drawGround
   drawSpheres spherePos
+
+  -- Get Y rotation
+  yRot <- readIORef yRef
+  -- Draw torus and orbiting sphere.
+  glPushMatrix
+  glTranslatef 0.0 0.0 (-2.5)
+  glPushMatrix
+  glRotatef ((-yRot) * 2) 0.0 1.0 0.0
+  glTranslatef 1.0 0.0 0.0
+  renderObject Solid $ Sphere' 0.1 13 26
+  glPopMatrix
+  glRotatef yRot 0.0 1.0 0.0
+  renderObject Solid $ Torus 0.35 0.15 40 20
+  glPopMatrix
+  -- Write Y rotation.
+  writeIORef yRef (yRot + 0.5)
 
   glPopMatrix
   -- Render.
@@ -102,30 +125,39 @@ withM44AsPtr (V4 (V4 c1 c5 c9 c13)
   withArray [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15,
              c16]
 
+-- |Called when the program's timer times out. Moves rotation forward.
+timer :: IORef GLfloat -> TimerCallback
+timer yRef = do
+  readIORef yRef >>= return . (+ 0.5) >>= writeIORef yRef
+  postRedisplay Nothing
+
 -- |Called when any keyboard or mouse event occurs.
 keymouse :: IORef (M44 GLfloat) -> KeyboardMouseCallback
-keymouse ioref (SpecialKey specialKey) Down _ _ =
+keymouse transformRef (SpecialKey specialKey) Down _ _ =
   case specialKey of
     KeyLeft -> do
-      transformation <- readIORef ioref
-      writeIORef ioref (transformation !*! rotateY 0.1)
+      transformation <- readIORef transformRef
+      writeIORef transformRef (transformation !*! rotateY 0.1)
       postRedisplay Nothing
     KeyUp -> do
-      transformation <- readIORef ioref
+      transformation <- readIORef transformRef
       let localVector = V3 0.0 0.0 (-1.0)
           worldVector = (transformation ^. _m33) !* localVector
-      writeIORef ioref $ over translation (^+^ worldVector) transformation
+      writeIORef transformRef $ over translation (^+^ worldVector)
+                                     transformation
       postRedisplay Nothing
     KeyRight -> do
-      transformation <- readIORef ioref
-      writeIORef ioref (transformation !*! rotateY (-0.1))
+      transformation <- readIORef transformRef
+      writeIORef transformRef (transformation !*! rotateY (-0.1))
       postRedisplay Nothing
     KeyDown -> do
-      transformation <- readIORef ioref
+      transformation <- readIORef transformRef
       let localVector = V3 0.0 0.0 1.0
           worldVector = (transformation ^. _m33) !* localVector
-      writeIORef ioref $ over translation (^+^ worldVector) transformation
+      writeIORef transformRef $ over translation (^+^ worldVector)
+                                     transformation
       postRedisplay Nothing
+    _ -> return ()
 keymouse _ _ _ _ _ = return ()
 
 -- |Create a rotation of x radians and return this rotation as a transformation
